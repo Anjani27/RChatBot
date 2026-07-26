@@ -252,7 +252,15 @@ async function handleFileSelected(e) {
 
     try {
         const res = await fetch('/api/upload', { method: 'POST', body: formData });
-        const data = await res.json();
+        const responseText = await res.text();
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch {
+            alert(`Upload failed (HTTP ${res.status}):\n${responseText.substring(0, 400)}`);
+            removePill(pillId);
+            return;
+        }
         if (res.ok) {
             showPill(file.name, 'success', pillId);
         } else {
@@ -261,7 +269,7 @@ async function handleFileSelected(e) {
         }
     } catch (err) {
         console.error('Upload error:', err);
-        alert('Upload failed. Please try again.');
+        alert(`Upload failed: ${err.message}`);
         removePill(pillId);
     }
 }
