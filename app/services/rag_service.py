@@ -2,7 +2,7 @@
 import os
 import shutil
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -14,8 +14,8 @@ from app.core.config import (
     UPLOAD_DIR,
 )
 
-# ── Embeddings ────────────────────────────────────────────────────
-_embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+# ── Embeddings (ONNX-based, memory-efficient) ─────────────────────────────
+_embedding_model = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 
 # ── Text splitter ─────────────────────────────────────────────────
 _splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
