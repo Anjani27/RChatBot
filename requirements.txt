@@ -28,4 +28,3 @@ requests>=2.31.0
 
 # Embeddings
 sentence-transformers>=3.0.0
-faiss-cpu>=1.8.0
