@@ -256,7 +256,7 @@ async function handleFileSelected(e) {
         if (res.ok) {
             showPill(file.name, 'success', pillId);
         } else {
-            alert(`Upload failed: {data.detail || 'Unknown error'}`);
+            alert(`Upload failed: ${data.detail || 'Unknown error'}`);
             removePill(pillId);
         }
     } catch (err) {
