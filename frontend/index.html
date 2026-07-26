@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangGraph Assistant</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <button id="new-chat-btn" class="btn-new-chat">
+                    <span class="logo-wrapper">
+                        <i class="fa-solid fa-circle-nodes"></i>
+                    </span>
+                    <span class="btn-text">New chat</span>
+                    <i class="fa-regular fa-pen-to-square new-chat-icon"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-scroll">
+                <div class="time-group-label">Recent Chats</div>
+                <div id="conversations-list" class="conversations-list">
+                    <!-- Loaded dynamically -->
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <!-- Sidebar User Profile/Footer -->
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="profile-avatar" id="user-avatar">U</div>
+                    <div class="profile-name" id="user-name">User Account</div>
+                    <button id="logout-btn" class="btn-logout" title="Log Out"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <!-- Chat Window -->
+            <section class="messages-container" id="messages-container">
+                <!-- Welcome Home Screen -->
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-logo">
+                        <i class="fa-solid fa-circle-nodes"></i>
+                    </div>
+                    <h2>How can I help you today?</h2>
+                    
+                    <div class="suggestions-grid">
+                        <div class="suggestion-card" data-query="What is the current weather in Lucknow?">
+                            <div class="suggestion-title">Get Weather Forecast</div>
+                            <div class="suggestion-desc">Check current weather and forecast conditions</div>
+                        </div>
+                        <div class="suggestion-card" data-query="Search the web for the latest tech news">
+                            <div class="suggestion-title">Search Web info</div>
+                            <div class="suggestion-desc">Find live/recent details using Tavily search</div>
+                        </div>
+                        <div class="suggestion-card" data-query="Explain RAG implementation in our system">
+                            <div class="suggestion-title">Explain RAG design</div>
+                            <div class="suggestion-desc">Understand how document indexing works</div>
+                        </div>
+                        <div class="suggestion-card" data-query="Help me write a Python FastAPI endpoint">
+                            <div class="suggestion-title">Write code helper</div>
+                            <div class="suggestion-desc">Draft clean code blocks or debug functions</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat Input Footer -->
+            <footer class="chat-footer-wrapper">
+                <div class="input-area-container">
+                    <!-- Attachment Preview (shows uploaded PDF pills) -->
+                    <div id="attachment-preview" class="attachment-preview"></div>
+                    <form id="chat-form" class="chat-form">
+                        <input type="file" id="file-input" accept=".pdf" style="display:none;">
+                        <button type="button" class="input-action-btn attach-btn" id="attach-btn" title="Upload PDF"><i class="fa-solid fa-paperclip"></i></button>
+                        <textarea id="user-input" placeholder="What is on your mind..." rows="1" required></textarea>
+                        <button type="submit" id="send-btn" class="btn-submit-message">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="disclaimer-text">
+                    RBot can make mistakes. Verify important info.
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Rename Modal -->
+    <div id="rename-modal" class="modal">
+        <div class="modal-content">
+            <h3>Rename Conversation</h3>
+            <input type="text" id="rename-input" placeholder="New Title...">
+            <div class="modal-actions">
+                <button id="rename-cancel-btn" class="btn-modal btn-modal-cancel">Cancel</button>
+                <button id="rename-save-btn" class="btn-modal btn-modal-save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal Overlay -->
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-box">
+            <div class="auth-header">
+                <i class="fa-solid fa-circle-nodes auth-logo"></i>
+                <h2 id="auth-title">Welcome Back</h2>
+                <p id="auth-subtitle">Log in to manage your chats privately.</p>
+            </div>
+            
+            <form id="auth-form" class="auth-form">
+                <div class="form-field">
+                    <label for="auth-email">Email Address</label>
+                    <input type="email" id="auth-email" required placeholder="name@example.com">
+                </div>
+                <div class="form-field">
+                    <label for="auth-password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="auth-password" required minlength="4" placeholder="Enter password...">
+                        <button type="button" id="toggle-password-btn" class="toggle-password-btn" title="Toggle password visibility"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                </div>
+                <div id="auth-error-msg" class="auth-error-msg"></div>
+                
+                <button type="submit" id="auth-submit-btn" class="btn-auth">Log In</button>
+            </form>
+            
+            <div class="auth-switch">
+                <span id="auth-switch-text">Don't have an account?</span>
+                <button id="auth-switch-btn">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+.github
+
+# Virtual environment
+.venv
+venv
+ENV
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Databases & local state
+chatbot.db
+chatbot.db-shm
+chatbot.db-wal
+chroma_db/
+data/uploads/
+
+# IDE files
+.vscode/
+.idea/
+.agents/
+.gemini/
+
+# Scratch & test scripts
+scratch/
+test_*.py
+create_test_pdf.py
+test_document.pdf
+*.log

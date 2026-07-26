@@ -1,0 +1,4 @@
+Welcome to the LangGraph Chatbot project!
+This is a production-grade conversational AI assistant utilizing LangGraph for structured agent workflows, 
+Streamlit for the user interface, SQLite for session state/history management, and a FAISS vector database 
+for retrieving local documents.

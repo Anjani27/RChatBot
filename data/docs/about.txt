@@ -1,0 +1,14 @@
+Welcome to the RBot AI Assistant!
+
+This is a production-grade AI chatbot with the following capabilities:
+- General knowledge questions and coding assistance
+- Weather lookup for any city
+- Real-time web search powered by Tavily
+- Document-based Q&A using PDF uploads (RAG)
+
+To use document chat:
+1. Start a new conversation
+2. Click the paperclip icon to upload a PDF
+3. Ask questions about the document
+
+The system uses LangGraph for workflow orchestration and Chroma DB for vector similarity search.
