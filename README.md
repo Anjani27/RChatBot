@@ -169,20 +169,6 @@ docker-compose up --build
 docker build -t ai-chatbot .
 docker run -p 7860:7860 --env-file .env ai-chatbot
 ```
-
----
-
-## ☁️ Deploy on Render (Free)
-
-1. Push your code to **GitHub** (make sure `.env` is in `.gitignore`).
-2. Go to [render.com](https://render.com) → **New → Web Service**.
-3. Connect your GitHub repository.
-4. Configure the service:
-   - **Environment**: Docker
-   - **Port**: `7860`
-5. Under **Environment Variables**, add all keys from your `.env` file.
-6. Click **Deploy** — Render will build the Docker image and go live!
-
 ---
 
 ## 🔑 API Keys
