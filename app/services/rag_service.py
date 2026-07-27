@@ -1,26 +1,47 @@
 """RAG service — Chroma DB vector store, PDF ingestion, and context retrieval."""
 import os
 import shutil
+from typing import List
+
 from langchain_chroma import Chroma
-from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
+from langchain_core.embeddings import Embeddings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from fastembed import TextEmbedding
 
 from app.core.config import (
     CHROMA_DB_PATH,
     DATA_DOCS_DIR,
-    EMBEDDING_MODEL_NAME,
     UPLOAD_DIR,
 )
 
-# ── Embeddings (ONNX-based, memory-efficient) ─────────────────────────────
-_embedding_model = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 
-# ── Text splitter ─────────────────────────────────────────────────
+class _FastEmbedWrapper(Embeddings):
+    """Lightweight ONNX-based embedding wrapper using fastembed directly.
+    
+    Uses fastembed's TextEmbedding which runs via ONNX Runtime — no PyTorch
+    required. Explicitly converts numpy arrays to Python float lists so
+    ChromaDB's upsert receives the correct type.
+    """
+
+    def __init__(self, model_name: str = "BAAI/bge-small-en-v1.5"):
+        self._model = TextEmbedding(model_name)
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        return [e.tolist() for e in self._model.embed(texts)]
+
+    def embed_query(self, text: str) -> List[float]:
+        return next(self._model.embed([text])).tolist()
+
+
+# ── Embeddings (ONNX-based, memory-efficient — no PyTorch) ────────────────
+_embedding_model = _FastEmbedWrapper()
+
+# ── Text splitter ─────────────────────────────────────────────────────────
 _splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
 
-# ── Chroma collection name ────────────────────────────────────────
+# ── Chroma collection name ────────────────────────────────────────────────
 COLLECTION_NAME = "chatbot_docs"
 
 
