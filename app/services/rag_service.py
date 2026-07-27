@@ -19,7 +19,7 @@ from app.core.config import (
 
 class _FastEmbedWrapper(Embeddings):
     """Lightweight ONNX-based embedding wrapper using fastembed directly.
-    
+
     Uses fastembed's TextEmbedding which runs via ONNX Runtime — no PyTorch
     required. Explicitly converts numpy arrays to Python float lists so
     ChromaDB's upsert receives the correct type.
@@ -60,7 +60,6 @@ def _load_and_index_default_docs() -> None:
         return
 
     db = _get_vector_store()
-    # Check if global docs already indexed
     results = db.get(where={"thread_id": "global"}, limit=1)
     if results and results.get("ids"):
         return  # Already indexed
