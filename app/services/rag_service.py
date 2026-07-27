@@ -3,12 +3,12 @@ import os
 import shutil
 from typing import List
 
+import requests
 from langchain_chroma import Chroma
 from langchain_core.embeddings import Embeddings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from fastembed import TextEmbedding
 
 from app.core.config import (
     CHROMA_DB_PATH,
@@ -16,27 +16,49 @@ from app.core.config import (
     UPLOAD_DIR,
 )
 
+HF_TOKEN = os.getenv("HF_TOKEN", "")
+HF_EMBED_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
 
-class _FastEmbedWrapper(Embeddings):
-    """Lightweight ONNX-based embedding wrapper using fastembed directly.
 
-    Uses fastembed's TextEmbedding which runs via ONNX Runtime — no PyTorch
-    required. Explicitly converts numpy arrays to Python float lists so
-    ChromaDB's upsert receives the correct type.
+class _HFInferenceEmbeddings(Embeddings):
+    """API-based embeddings via HuggingFace Inference API.
+
+    Runs zero local ML code — embeddings are computed remotely.
+    This keeps the server's RAM footprint tiny on free-tier hosts.
     """
 
-    def __init__(self, model_name: str = "BAAI/bge-small-en-v1.5"):
-        self._model = TextEmbedding(model_name)
+    def _call_api(self, texts: List[str]) -> List[List[float]]:
+        headers = {}
+        if HF_TOKEN:
+            headers["Authorization"] = f"Bearer {HF_TOKEN}"
+        response = requests.post(
+            HF_EMBED_URL,
+            headers=headers,
+            json={"inputs": texts, "options": {"wait_for_model": True}},
+            timeout=60,
+        )
+        response.raise_for_status()
+        result = response.json()
+        # HF returns List[List[float]] directly for batch inputs
+        if isinstance(result[0], list):
+            return result
+        # single item returns List[float]
+        return [result]
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        return [e.tolist() for e in self._model.embed(texts)]
+        # Batch in groups of 32 to avoid HF API limits
+        all_embeddings: List[List[float]] = []
+        for i in range(0, len(texts), 32):
+            batch = texts[i : i + 32]
+            all_embeddings.extend(self._call_api(batch))
+        return all_embeddings
 
     def embed_query(self, text: str) -> List[float]:
-        return next(self._model.embed([text])).tolist()
+        return self._call_api([text])[0]
 
 
-# ── Embeddings (ONNX-based, memory-efficient — no PyTorch) ────────────────
-_embedding_model = _FastEmbedWrapper()
+# ── Embeddings (HuggingFace Inference API — zero local RAM cost) ──────────
+_embedding_model = _HFInferenceEmbeddings()
 
 # ── Text splitter ─────────────────────────────────────────────────────────
 _splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
