@@ -19,6 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-download the fastembed (ONNX) embedding model to avoid runtime download
+RUN python -c "from fastembed import TextEmbedding; TextEmbedding('BAAI/bge-small-en-v1.5')"
+
 # Copy source code and frontend
 COPY app/ ./app/
 COPY frontend/ ./frontend/

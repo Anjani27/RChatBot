@@ -24,4 +24,5 @@ pypdf>=6.0.0
 tavily-python>=0.5.0
 requests>=2.31.0
 
-# No local embedding library needed — using HuggingFace Inference API
+# Embeddings (ONNX-based, memory-efficient — no PyTorch needed)
+fastembed>=0.3.0
