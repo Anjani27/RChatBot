@@ -1,6 +1,6 @@
 # 🤖 LangGraph AI Chatbot
 
-A full-stack, production-ready AI chatbot powered by **LangGraph**, **Groq (LLaMA)**, and **ChromaDB RAG**. It features intelligent tool routing, real-time streaming, PDF knowledge base uploads, web search, and weather lookups — all wrapped in a sleek custom HTML/CSS/JS frontend served by a FastAPI backend.
+A full-stack, production-ready AI chatbot [RBot](https://rchatbot-production.up.railway.app/) powered by **LangGraph**, **Groq (LLaMA)**, and **ChromaDB RAG**. It features intelligent tool routing, real-time streaming, PDF knowledge base uploads, web search, and weather lookups — all wrapped in a sleek custom HTML/CSS/JS frontend served by a FastAPI backend.
 
 ---
 
